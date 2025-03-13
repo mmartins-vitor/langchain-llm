@@ -13,30 +13,24 @@ const model = new ChatOpenAI({
   model: "gpt-4o-mini",
 });
 
-// LangChain functions
-const translateText = async () => {
-  const messages = [
-    new SystemMessage("Translate the following from English into Italian"),
-    new HumanMessage("hi!"),
-  ];
+
+  const systemTemplate = "Translate the following from English into {language}";
+
+  const promptTemplate = ChatPromptTemplate.fromMessages([
+    ["system", systemTemplate],
+    ["user", "{text}"],
+  ]);
 
   // Chamando o modelo
-  const stream = await model.stream(messages);
-
-  // Array de chunks que serão armazenados
-  const chunks: string[] = [];  // Definindo como array de strings
+  const promptValue = await promptTemplate.invoke({
+    language: "italian",
+    text: "hi!",
+  });
   
-  for await (const chunk of stream) {
-    // Verifica se 'content' existe e é uma string
-    if (typeof chunk.content === 'string') {
-      chunks.push(chunk.content);  // Adiciona o conteúdo ao array
-      console.log(`${chunk.content}|`);
-    } else {
-      // Caso o conteúdo não seja uma string, você pode tratá-lo
-      console.log('Conteúdo inesperado:', chunk.content);
-    }
-  }
-};
+  
+const response = await model.invoke(promptValue);
+console.log(`${response.content}`);
+
 
 // Executa a função
-translateText();
+

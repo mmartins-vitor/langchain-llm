@@ -35,6 +35,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __asyncValues = (this && this.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var dotenv_1 = require("dotenv");
 var openai_1 = require("@langchain/openai");
@@ -43,31 +50,65 @@ var messages_1 = require("@langchain/core/messages");
 // OpenAi Instantiate
 var model = new openai_1.ChatOpenAI({
     openAIApiKey: process.env.OPENAI_API_KEY, // 🔹 Adicione sua chave da OpenAI
-    model: "gpt-4o-mini"
+    model: "gpt-4o-mini",
 });
 // LangChain functions
 var translateText = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var messages, response, error_1;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var messages, stream, chunks, _a, stream_1, stream_1_1, chunk, e_1_1;
+    var _b, e_1, _c, _d;
+    return __generator(this, function (_e) {
+        switch (_e.label) {
             case 0:
                 messages = [
                     new messages_1.SystemMessage("Translate the following from English into Italian"),
                     new messages_1.HumanMessage("hi!"),
                 ];
-                _a.label = 1;
+                return [4 /*yield*/, model.stream(messages)];
             case 1:
-                _a.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, model.invoke(messages)];
+                stream = _e.sent();
+                chunks = [];
+                _e.label = 2;
             case 2:
-                response = _a.sent();
-                console.log(response); // 🔹 Mostra a resposta no console
-                return [3 /*break*/, 4];
-            case 3:
-                error_1 = _a.sent();
-                console.error("Error:", error_1); // 🔹 Tratamento de erro
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
+                _e.trys.push([2, 7, 8, 13]);
+                _a = true, stream_1 = __asyncValues(stream);
+                _e.label = 3;
+            case 3: return [4 /*yield*/, stream_1.next()];
+            case 4:
+                if (!(stream_1_1 = _e.sent(), _b = stream_1_1.done, !_b)) return [3 /*break*/, 6];
+                _d = stream_1_1.value;
+                _a = false;
+                chunk = _d;
+                // Verifica se 'content' existe e é uma string
+                if (typeof chunk.content === 'string') {
+                    chunks.push(chunk.content); // Adiciona o conteúdo ao array
+                    console.log("".concat(chunk.content, "|"));
+                }
+                else {
+                    // Caso o conteúdo não seja uma string, você pode tratá-lo
+                    console.log('Conteúdo inesperado:', chunk.content);
+                }
+                _e.label = 5;
+            case 5:
+                _a = true;
+                return [3 /*break*/, 3];
+            case 6: return [3 /*break*/, 13];
+            case 7:
+                e_1_1 = _e.sent();
+                e_1 = { error: e_1_1 };
+                return [3 /*break*/, 13];
+            case 8:
+                _e.trys.push([8, , 11, 12]);
+                if (!(!_a && !_b && (_c = stream_1.return))) return [3 /*break*/, 10];
+                return [4 /*yield*/, _c.call(stream_1)];
+            case 9:
+                _e.sent();
+                _e.label = 10;
+            case 10: return [3 /*break*/, 12];
+            case 11:
+                if (e_1) throw e_1.error;
+                return [7 /*endfinally*/];
+            case 12: return [7 /*endfinally*/];
+            case 13: return [2 /*return*/];
         }
     });
 }); };

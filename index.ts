@@ -2,12 +2,15 @@ import { config } from "dotenv";
 import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+
+
 config();
 
 // OpenAi Instantiate
-const model = new ChatOpenAI({ 
+const model = new ChatOpenAI({
   openAIApiKey: process.env.OPENAI_API_KEY, // 🔹 Adicione sua chave da OpenAI
-  model: "gpt-4o-mini"
+  model: "gpt-4o-mini",
 });
 
 // LangChain functions
@@ -17,12 +20,21 @@ const translateText = async () => {
     new HumanMessage("hi!"),
   ];
 
-  // calling model
-  try {
-    const response = await model.invoke(messages);
-    console.log(response.content); // 🔹 Mostra a resposta no console
-  } catch (error) {
-    console.error("Error:", error); // 🔹 Tratamento de erro
+  // Chamando o modelo
+  const stream = await model.stream(messages);
+
+  // Array de chunks que serão armazenados
+  const chunks: string[] = [];  // Definindo como array de strings
+  
+  for await (const chunk of stream) {
+    // Verifica se 'content' existe e é uma string
+    if (typeof chunk.content === 'string') {
+      chunks.push(chunk.content);  // Adiciona o conteúdo ao array
+      console.log(`${chunk.content}|`);
+    } else {
+      // Caso o conteúdo não seja uma string, você pode tratá-lo
+      console.log('Conteúdo inesperado:', chunk.content);
+    }
   }
 };
 
